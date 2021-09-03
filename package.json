@@ -1,6 +1,6 @@
 {
-	"name": "fresh-extension",
-	"displayName": "fresh-extension",
+	"name": "canvasrenderer3",
+	"displayName": "canvasrenderer3",
 	"description": "",
 	"version": "0.0.1",
 	"engines": {
@@ -10,13 +10,13 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:fresh-extension.helloWorld"
+		"onCommand:canvasrenderer3.helloWorld"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "fresh-extension.helloWorld",
+				"command": "canvasrenderer3.helloWorld",
 				"title": "Hello World"
 			}
 		]
