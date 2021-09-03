@@ -10,14 +10,15 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:canvasrenderer3.helloWorld"
+		"onCommand:canvasrenderer3.openPreview",
+    "onWebviewPanel:canvasrenderer3"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "canvasrenderer3.helloWorld",
-				"title": "Hello World"
+				"command": "canvasrenderer3.openPreview",
+				"title": "Render Canvas to Image"
 			}
 		]
 	},

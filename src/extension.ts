@@ -1,26 +1,80 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from 'vscode'
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+let currentPanel: vscode.WebviewPanel | undefined = undefined
+
 export function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "canvasrenderer3" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('canvasrenderer3.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from canvasrenderer3!');
-	});
-
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(
+    vscode.commands.registerCommand('canvasrenderer3.openPreview', () => {
+      const panel = vscode.window.createWebviewPanel(
+        'canvasrenderer3',
+        'canvasrenderer3',
+        {
+          viewColumn: vscode.ViewColumn.Beside,
+          preserveFocus: true,
+        },
+        {
+          enableScripts: true,
+        },
+      )
+      currentPanel = panel
+      panel.onDidDispose(() => {
+        currentPanel = undefined
+      })
+      panel.webview.html = getWebviewContent(context, panel.webview)
+    }),
+  )
+  context.subscriptions.push(
+    vscode.window.registerWebviewPanelSerializer(
+      'canvasrenderer3',
+      new CanvasRendererWebViewPanelSerializer(context),
+    ),
+  )
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
+
+function getWebviewContent(
+  context: vscode.ExtensionContext,
+  webview: vscode.Webview,
+) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta
+		http-equiv="Content-Security-Policy"
+		content="default-src 'none'; img-src ${webview.cspSource} https:; script-src ${
+    webview.cspSource
+  }; style-src ${webview.cspSource}; connect-src ${
+    webview.cspSource
+  }; worker-src blob:;"
+	/>
+	<title>hey</title>
+</head>
+<body>
+	<div id="main"></div>
+	<script
+		id="script"
+		src="${webview.asWebviewUri(
+      vscode.Uri.joinPath(context.extensionUri, 'viewer/index.js'),
+    )}"
+		data-worker-url="${webview.asWebviewUri(
+      vscode.Uri.joinPath(context.extensionUri, 'viewer/worker.js'),
+    )}"
+	></script>
+</body>
+</html>`
+}
+
+class CanvasRendererWebViewPanelSerializer
+  implements vscode.WebviewPanelSerializer
+{
+  constructor(private context: vscode.ExtensionContext) {}
+  async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+    webviewPanel.webview.html = getWebviewContent(
+      this.context,
+      webviewPanel.webview,
+    )
+  }
+}
